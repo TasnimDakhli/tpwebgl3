@@ -17,6 +17,7 @@ import { UpdateTodoDto } from './update-todo.dto';
 import { UpdateResult } from "typeorm/query-builder/result/UpdateResult";
 import { DeleteResult } from "typeorm/query-builder/result/DeleteResult";
 import { SearchTodoDto } from "./dto/search-todo.dto";
+import { getTodoDto } from "./dto/get-todo.dto";
 @Controller({
   path: 'todo',
   version: '2',
@@ -25,8 +26,13 @@ export class TodoDBController {
   constructor(private todoService: TodoService) {}
   @Get()
   getTodos(@Query() searchTodoDto: SearchTodoDto): Promise<TodoEntity[]> {
-    return this.todoService.findAll(searchTodoDto);
+    return this.todoService.findAll3(searchTodoDto);
   }
+  @Get('/all')
+  getAll(@Query() getTodoDto: getTodoDto): Promise<TodoEntity[]> {
+    return this.todoService.getAll(getTodoDto);
+  }
+ 
 
   @Post()
   addTodo(@Body() newTodoData: Partial<TodoEntity>): Promise<TodoEntity> {
@@ -55,4 +61,5 @@ export class TodoDBController {
   version() {
     return '2';
   }
+  
 }
