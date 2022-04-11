@@ -7,6 +7,8 @@ import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult';
 import { UpdateResult } from 'typeorm/query-builder/result/UpdateResult';
 import { SearchTodoDto } from './dto/search-todo.dto';
 import { getTodoDto } from './dto/get-todo.dto';
+import { TodoStatusEnum } from './enums/todo-status.enum';
+import { DatesDto } from "./dto/dates.dto";
 
 @Injectable()
 export class TodoService {
@@ -14,6 +16,7 @@ export class TodoService {
     @InjectRepository(TodoEntity)
     private todoRepository: Repository<TodoEntity>,
   ) {}
+
   addTodo(todo: Partial<TodoEntity>): Promise<TodoEntity> {
     return this.todoRepository.save(todo);
   }
@@ -37,6 +40,7 @@ export class TodoService {
     }
     throw new NotFoundException(`Le todo d'id ${id} n'existe pas `);
   }
+
   async softDeleteTodo(id: string): Promise<UpdateResult> {
     const result = await this.todoRepository.softDelete(id);
     if (result.affected) {
@@ -129,5 +133,38 @@ async getAll(getTodoDto: getTodoDto ): Promise<TodoEntity[]> {
       
 
   return result;
+}
+async getStats(datesDto:DatesDto): Promise<number[]> {
+  var stat = [];
+  var i=0;
+  if ((datesDto.debut)&&(datesDto.fin)){
+    for (let s in TodoStatusEnum){
+      var n = await this.todoRepository
+       .createQueryBuilder("todo")
+       .select("count(todo.createdAt)", TodoStatusEnum[s])
+       .where("todo.status = :status", 
+       { status: TodoStatusEnum[s]}
+       ).andWhere("todo.createdAt >= :datedebut",
+       {datedebut : datesDto.debut})
+       .andWhere("todo.createdAt <= :datefin",
+       {datefin: datesDto.fin})
+       .getRawOne()
+     stat[i]=n;
+     i++;
+   }}
+   else {
+    for (let s in TodoStatusEnum){
+      var n = await this.todoRepository
+       .createQueryBuilder("todo")
+       .select("count(todo.createdAt)", TodoStatusEnum[s])
+       .where("todo.status = :status", 
+       { status: TodoStatusEnum[s]}
+       )
+       .getRawOne()
+     stat[i]=n;
+     i++;
+   }
+   }
+  return stat;
 }
 }

@@ -7,7 +7,10 @@ import { devConfig } from './config/dev.config';
 import { prodConfig } from "./config/prod.config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TodoEntity } from "./todo/Entity/todo.entity";
-
+import { Cv } from "./cv/entities/cv.entity";
+import { CvModule } from './cv/cv.module';
+import { SkillModule } from './cv/skill.module';
+import { UserModule } from './cv/user.module';
 @Module({
   imports: [
     PremierModule,
@@ -27,6 +30,9 @@ import { TodoEntity } from "./todo/Entity/todo.entity";
       synchronize: true,
       debug: true,
     }),
+    CvModule,
+    UserModule,
+    SkillModule
   ],
   controllers: [AppController],
   providers: [],
